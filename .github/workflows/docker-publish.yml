@@ -1,0 +1,46 @@
+name: Docker Image CI
+
+on: [push, pull_request]
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to push to GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            # For push to main: latest and sha-short
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+            type=sha,format=short,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+            # For push to other branches: branchname-sha-short (e.g., mybranch-abc1234)
+            type=sha,prefix=${{ github.ref_name }}-,event=branch,format=short,enable=${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+
+            # For pull requests: pr-number-sha-short (e.g., pr-123-abc1234)
+            type=sha,prefix=pr${{ github.event.number }}-,event=pr,format=short
+
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

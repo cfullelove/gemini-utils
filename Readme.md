@@ -52,6 +52,23 @@ uvicorn main:app --reload
 
 This will typically start the server on `http://127.0.0.1:8000`.
 
+## Running with Docker
+
+You can also build and run this application using Docker.
+
+1.  **Build the Docker image:**
+    Navigate to the project's root directory (where the `Dockerfile` is located) and run:
+    ```bash
+    docker build -t meeting-transcriber .
+    ```
+
+2.  **Run the Docker container:**
+    After building the image, you can run it as a container. You'll need to pass your `GOOGLE_API_KEY` as an environment variable.
+    ```bash
+    docker run -e GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY" -p 8000:8000 meeting-transcriber
+    ```
+    The application will be accessible at `http://localhost:8000`.
+
 ## API Endpoint
 
 ### `POST /transcribe/`

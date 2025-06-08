@@ -71,8 +71,7 @@ async def transcribe_audio(file: UploadFile = File(...), token: str = Depends(ge
         print("Calling Gemini for transcription and diarization...")
         model = genai.GenerativeModel("gemini-2.5-pro-preview-03-25") # Using 1.5 Pro as it has better audio capabilities
         response = model.generate_content(
-            # [uploaded_file, "Generate a transcript with speaker diarization."]
-            [uploaded_file, "For each speaker, summarise what they spoke about. Also include all actions, noting who called for the action, and who it was assigned to (if specified)"]
+            [uploaded_file, "Generate a transcript with speaker diarization."]
         )
         print("Gemini response received.")
 
