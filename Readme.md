@@ -9,6 +9,8 @@ This project provides a FastAPI-based API endpoint to transcribe audio or video 
 - Summarizes what each speaker discussed.
 - Identifies action items, including who called for the action and who it was assigned to (if specified).
 - Secured endpoint using Bearer token authentication.
+- **New:** Provides a simple web interface for uploading files and viewing transcriptions.
+- **New:** Allows users to provide additional context to the transcription prompt (e.g., speaker names, topics).
 
 ## Prerequisites
 
@@ -50,7 +52,7 @@ You can run the FastAPI application using Uvicorn:
 uvicorn main:app --reload
 ```
 
-This will typically start the server on `http://127.0.0.1:8000`.
+This will typically start the server on `http://127.0.0.1:8000`. You can access the web interface directly at this URL.
 
 ## Running with Docker
 
@@ -67,7 +69,7 @@ You can also build and run this application using Docker.
     ```bash
     docker run -e GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY" -p 8000:8000 meeting-transcriber
     ```
-    The application will be accessible at `http://localhost:8000`.
+    The application will be accessible at `http://localhost:8000`, including the web interface.
 
 ## API Endpoint
 
@@ -82,7 +84,8 @@ This endpoint accepts an audio or video file and returns its transcription and s
 -   **Headers:**
     -   `Authorization: Bearer <YOUR_ACCESS_TOKEN>`
 -   **Body:** `multipart/form-data`
-    -   `file`: The audio or video file to be transcribed.
+    -   `file`: The audio or video file to be transcribed. (Required)
+    -   `prompt_context`: Optional string to provide additional context to the transcription model (e.g., speaker names, specific terminology). (Optional)
 
 **Authentication:**
 
@@ -93,7 +96,8 @@ The endpoint requires a Bearer token for authentication. For this example, any n
 ```bash
 curl -X POST "http://127.0.0.1:8000/transcribe/" \
      -H "Authorization: Bearer yoursecuretoken" \
-     -F "file=@/path/to/your/audiofile.mp3"
+     -F "file=@/path/to/your/audiofile.mp3" \
+     -F "prompt_context=Speakers: Alice, Bob. Meeting about Q3 roadmap."
 ```
 
 **Successful Response (200 OK):**
@@ -140,6 +144,16 @@ curl -X POST "http://127.0.0.1:8000/transcribe/" \
     }
     ```
 
+## Web Interface
+
+A simple web interface is provided to interact with the transcription service. You can access it by navigating to the root URL (e.g., `http://localhost:8000`) when the application is running.
+
+The interface allows you to:
+- Upload an audio or video file.
+- Enter your API Bearer token.
+- Optionally provide additional context for the transcription prompt.
+- View the generated transcript directly on the page.
+
 ## How it Works
 
 1.  **File Upload:** The client uploads an audio/video file to the `/transcribe/` endpoint.
@@ -155,11 +169,12 @@ curl -X POST "http://127.0.0.1:8000/transcribe/" \
 -   **Google Generative AI (Gemini 2.5 Pro):** For transcription, diarization, and summarization.
 -   **python-dotenv:** For managing environment variables.
 -   **Uvicorn:** ASGI server to run the FastAPI application.
+-   **HTML, JavaScript, Pico.css:** For the simple web frontend.
 
 ## Future Improvements
 
 -   Implement robust token validation.
 -   Add more detailed error logging.
 -   Support for more audio/video formats if needed.
--   Allow customization of the summarization prompt.
+-   Allow more detailed customization of the summarization prompt (the `prompt_context` field offers basic customization).
 -   Asynchronous processing for very large files to avoid long request times.
