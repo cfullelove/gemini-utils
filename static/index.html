@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Transcription</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            white-space: pre-wrap; /* Preserve whitespace and newlines */
+            background-color: #f9f9f9;
+        }
+        .hidden {
+            display: none;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <hgroup>
+            <h1>Upload Audio/Video to Transcribe</h1>
+            <p>Provide an audio or video file, your API token, and optional context for transcription.</p>
+        </hgroup>
+
+        <form id="transcriptionForm">
+            <label for="file">Audio/Video File</label>
+            <input type="file" id="file" name="file" required>
+
+            <label for="apiToken">API Token</label>
+            <input type="text" id="apiToken" name="apiToken" placeholder="Enter your API token" required>
+            
+            <label for="promptContext">Additional Context (Optional)</label>
+            <textarea id="promptContext" name="promptContext" placeholder="e.g., Speaker names: Alice, Bob. Topic: Project planning."></textarea>
+
+            <button type="submit" id="submitButton">Transcribe</button>
+        </form>
+
+        <div id="loadingIndicator" class="hidden" aria-busy="true">Processing your file, please wait...</div>
+        <div id="result" class="hidden"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

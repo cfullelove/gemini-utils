@@ -1,9 +1,9 @@
 import os
 import tempfile
 import time
-import os
-import tempfile
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, status, Form
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -18,6 +18,16 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 security_scheme = HTTPBearer()
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
@@ -32,7 +42,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return credentials.credentials # Return the token itself for now
 
 @app.post("/transcribe/")
-async def transcribe_audio(file: UploadFile = File(...), token: str = Depends(get_current_user)):
+async def transcribe_audio(
+    file: UploadFile = File(...),
+    prompt_context: str = Form(None),  # Optional additional context
+    token: str = Depends(get_current_user)
+):
     if not file.content_type.startswith("audio/") and not file.content_type.startswith("video/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -70,8 +84,16 @@ async def transcribe_audio(file: UploadFile = File(...), token: str = Depends(ge
         # Call Gemini for transcription and diarization
         print("Calling Gemini for transcription and diarization...")
         model = genai.GenerativeModel("gemini-2.5-pro-preview-03-25") # Using 1.5 Pro as it has better audio capabilities
+        
+        prompt_parts = ["Generate a transcript with speaker diarization."]
+        if prompt_context:
+            prompt_parts.append(f"Additional context: {prompt_context}")
+        
+        final_prompt = " ".join(prompt_parts)
+        print(f"Using prompt: {final_prompt}")
+
         response = model.generate_content(
-            [uploaded_file, "Generate a transcript with speaker diarization."]
+            [uploaded_file, final_prompt]
         )
         print("Gemini response received.")
 
@@ -102,3 +124,7 @@ async def transcribe_audio(file: UploadFile = File(...), token: str = Depends(ge
                 print(f"Uploaded file deleted from GCS: {uploaded_file.name}")
             except exceptions.GoogleAPIError as e:
                 print(f"Failed to delete file from GCS: {e}")
+
+# Mount static files at the end, so API routes are processed first.
+# This serves files from the "static" directory and index.html at the root path "/".
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
