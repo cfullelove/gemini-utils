@@ -24,15 +24,15 @@ This project provides a FastAPI-based API endpoint to transcribe audio or video 
     ```
 
 2.  **Install dependencies:**
-    This project uses FastAPI, Uvicorn (for running the server), python-dotenv, and the Google Generative AI SDK. You can install them using pip:
+    This project uses FastAPI, Uvicorn (for running the server), python-dotenv, python-multipart, and the Google Generative AI SDK. You can install them using pip:
     ```bash
-    pip install fastapi uvicorn python-dotenv google-generativeai
+    pip install fastapi uvicorn python-dotenv google-generativeai python-multipart
     ```
     It's recommended to use a virtual environment:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install fastapi uvicorn python-dotenv google-generativeai
+    pip install fastapi uvicorn python-dotenv google-generativeai python-multipart
     ```
 
 3.  **Set up environment variables:**

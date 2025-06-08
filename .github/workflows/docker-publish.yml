@@ -1,6 +1,6 @@
 name: Docker Image CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build_and_push:
@@ -32,9 +32,6 @@ jobs:
 
             # For push to other branches: branchname-sha-short (e.g., mybranch-abc1234)
             type=sha,prefix=${{ github.ref_name }}-,event=branch,format=short,enable=${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-
-            # For pull requests: pr-number-sha-short (e.g., pr-123-abc1234)
-            type=sha,prefix=pr${{ github.event.number }}-,event=pr,format=short
 
 
       - name: Build and push Docker image
